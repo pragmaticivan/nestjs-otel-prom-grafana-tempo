@@ -8,6 +8,7 @@ export const loggerOptions: LoggerOptions = {
     level(label) {
       return { level: label };
     },
+    // Workaround for PinoInstrumentation (does not support latest version yet)
     log(object) {
       const span = trace.getSpan(context.active());
       if (!span) return { ...object };

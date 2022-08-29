@@ -5,7 +5,6 @@ import {
 } from '@opentelemetry/core';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
-import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino';
 import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
@@ -33,7 +32,6 @@ const otelSDK = new NodeSDK({
     ],
   }),
   instrumentations: [
-    new PinoInstrumentation(),
     new ExpressInstrumentation(),
     new NestInstrumentation(),
   ],
