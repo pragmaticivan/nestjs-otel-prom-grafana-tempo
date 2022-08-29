@@ -3,14 +3,19 @@ import { UploadedFile } from '@nestjs/common';
 import { Controller, Get, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { context, trace } from '@opentelemetry/api';
+import { Logger } from 'nestjs-pino';
 import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly logger: Logger,
+  ) {}
 
   @Get()
   getHello(): string {
+    this.logger.log('Calling getHello()', AppController.name);
     return this.appService.getHello();
   }
 

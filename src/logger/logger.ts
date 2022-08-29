@@ -20,10 +20,10 @@ export const loggerOptions: LoggerOptions = {
   prettyPrint:
     process.env.NODE_ENV === 'local'
       ? {
-          colorize: true,
-          levelFirst: true,
-          translateTime: true,
-        }
+        colorize: true,
+        levelFirst: true,
+        translateTime: true,
+      }
       : false,
 };
 

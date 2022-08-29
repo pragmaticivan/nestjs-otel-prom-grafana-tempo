@@ -5,7 +5,9 @@ import {
 } from '@opentelemetry/core';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { JaegerExporter } from '@opentelemetry/exporter-jaeger';
-import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { PinoInstrumentation } from '@opentelemetry/instrumentation-pino';
+import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
+import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
 import { JaegerPropagator } from '@opentelemetry/propagator-jaeger';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
@@ -14,10 +16,9 @@ import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-ho
 import * as process from 'process';
 
 const otelSDK = new NodeSDK({
-  metricExporter: new PrometheusExporter({
+  metricReader: new PrometheusExporter({
     port: 8081,
   }),
-  metricInterval: 6000,
   spanProcessor: new BatchSpanProcessor(new JaegerExporter()),
   contextManager: new AsyncLocalStorageContextManager(),
   textMapPropagator: new CompositePropagator({
@@ -31,7 +32,11 @@ const otelSDK = new NodeSDK({
       }),
     ],
   }),
-  instrumentations: [getNodeAutoInstrumentations()],
+  instrumentations: [
+    new PinoInstrumentation(),
+    new ExpressInstrumentation(),
+    new NestInstrumentation(),
+  ],
 });
 
 export default otelSDK;

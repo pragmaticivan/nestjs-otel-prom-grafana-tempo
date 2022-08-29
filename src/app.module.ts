@@ -8,7 +8,6 @@ import { TeamModule } from './team/team.module';
 const OpenTelemetryModuleConfig = OpenTelemetryModule.forRoot({
   metrics: {
     hostMetrics: true,
-    defaultMetrics: true,
     apiMetrics: {
       enable: true,
     },
