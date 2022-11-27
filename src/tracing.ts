@@ -31,10 +31,7 @@ const otelSDK = new NodeSDK({
       }),
     ],
   }),
-  instrumentations: [
-    new ExpressInstrumentation(),
-    new NestInstrumentation(),
-  ],
+  instrumentations: [new ExpressInstrumentation(), new NestInstrumentation()],
 });
 
 export default otelSDK;

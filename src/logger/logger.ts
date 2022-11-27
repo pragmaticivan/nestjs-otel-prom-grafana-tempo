@@ -18,14 +18,7 @@ export const loggerOptions: LoggerOptions = {
       return { ...object, spanId, traceId };
     },
   },
-  prettyPrint:
-    process.env.NODE_ENV === 'local'
-      ? {
-        colorize: true,
-        levelFirst: true,
-        translateTime: true,
-      }
-      : false,
+  prettifier: process.env.NODE_ENV === 'local' ? require('pino-pretty') : false,
 };
 
 export const logger: Logger = Pino(
