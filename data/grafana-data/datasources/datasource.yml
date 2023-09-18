@@ -12,35 +12,25 @@ datasources:
   orgId: 1
   url: http://prometheus:9090
   basicAuth: false
-  isDefault: false
+  isDefault: true
   version: 1
   editable: false
+
 - name: Tempo
   type: tempo
   access: proxy
   orgId: 1
-  url: http://tempo:3100
+  url: http://tempo:3200
   basicAuth: false
   isDefault: false
   version: 1
   editable: true
   apiVersion: 1
   uid: tempo
-- name: Tempo-Multitenant
-  type: tempo
-  access: proxy
-  orgId: 1
-  url: http://tempo:3100
-  basicAuth: false
-  isDefault: false
-  version: 1
-  editable: true
-  apiVersion: 1
-  uid: tempo-authed
   jsonData:
-    httpHeaderName1: 'Authorization'
-  secureJsonData:
-    httpHeaderValue1: 'Bearer foo-bar-baz'
+    httpMethod: GET
+    serviceMap:
+      datasourceUid: prometheus
 
 - name: Loki
   type: loki

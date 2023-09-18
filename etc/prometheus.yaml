@@ -24,4 +24,3 @@ scrape_configs:
     metrics_path: /metrics
     static_configs:
     - targets: ['volume_exporter:9888']
-

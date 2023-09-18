@@ -1,16 +1,14 @@
-FROM node:14.15.5-alpine3.13
+FROM node:18.17-alpine
 EXPOSE 5555
 
-RUN mkdir /app && chown -R node:node /app
-
-USER node
+RUN mkdir /app
 
 COPY package.json package-lock.json /app/
 RUN cd /app && npm install
 
 WORKDIR /app
 
-COPY --chown=node:node . /app
+COPY . /app
 
 RUN npm run build
 

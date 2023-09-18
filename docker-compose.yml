@@ -1,24 +1,38 @@
 version: '3.7'
 services:
+  otel-collector:
+    image: otel/opentelemetry-collector:0.61.0
+    command: [ "--config=/etc/otel-collector.yaml" ]
+    volumes:
+      - ./etc/otel-collector.yaml:/etc/otel-collector.yaml
+    ports:
+      - "1888:1888"   # pprof extension
+      - "8888:8888"   # Prometheus metrics exposed by the collector
+      - "8889:8889"   # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "55679:55679" # zpages extension
+    depends_on:
+      - tempo
+      - prometheus
+
   tempo:
-    image: grafana/tempo:1.5.0
+    image: grafana/tempo:2.2.3
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
-      - ./etc/tempo-local.yaml:/etc/tempo.yaml
+      - ./etc/tempo.yaml:/etc/tempo.yaml
       - ./data/tempo-data:/tmp/tempo
     ports:
-      - "14268" # jaeger ingest, Jaeger - Thrift HTTP
-      - "14250" # Jaeger - GRPC
-      - "55680" # OpenTelemetry
-      - "6831/udp" # Jaeger - Thrift Compact
-      - "6832/udp" # Jaeger - Thrift Binary
-    logging:
-      driver: loki
-      options:
-        loki-url: http://localhost:3100/loki/api/v1/push
+      - "14268" # jaeger ingest
+      - "3200"  # tempo
+      - "4317"  # otlp grpc
+      - "4318"  # otlp http
+      - "9411"  # zipkin
+
   loki:
-    image: grafana/loki:2.6.1
-    command: -config.file=/etc/loki/loki-local.yaml
+    image: grafana/loki:2.8.5
+    command: -config.file=/etc/loki/loki.yaml
     ports:
       - "3100:3100" # loki needs to be exposed so it receives logs
     environment:
@@ -27,48 +41,31 @@ services:
       - JAEGER_SAMPLER_TYPE=const
       - JAEGER_SAMPLER_PARAM=1
     volumes:
-      - ./etc/loki-local.yaml:/etc/loki/loki-local.yaml
+      - ./etc/loki.yaml:/etc/loki/loki.yaml
       - ./data/loki-data:/tmp/loki
-    logging:
-      driver: loki
-      options:
-        loki-url: http://localhost:3100/loki/api/v1/push
-  volume_exporter:
-    image: mnadeem/volume_exporter
-    command:
-      [
-        "--volume-dir=tempo:/tmp/tempo",
-        "--volume-dir=logs:/app/logs",
-        "--volume-dir=loki:/tmp/loki"
-      ]
+
+  promtail:
+    image: grafana/promtail:2.9.0
     volumes:
-      - ./data/logs:/app/logs
-      - ./data/tempo-data:/tmp/tempo
-      - ./data/loki-data:/tmp/loki
-    ports:
-      - 9889:9888
-    logging:
-      driver: loki
-      options:
-        loki-url: http://localhost:3100/loki/api/v1/push
+      - ./etc/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yaml
+    depends_on:
+      - loki
+
   prometheus:
     image: prom/prometheus:latest
     volumes:
       - ./etc/prometheus.yaml:/etc/prometheus.yaml
-    entrypoint:
-      - /bin/prometheus
+    command:
       - --config.file=/etc/prometheus.yaml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
     ports:
       - "9090:9090"
-    depends_on:
-      - nestjs-example
-    logging:
-      driver: loki
-      options:
-        loki-url: http://localhost:3100/loki/api/v1/push
 
   grafana:
-    image: grafana/grafana:9.1.1-ubuntu
+    image: grafana/grafana:9.2.20
     volumes:
       - ./data/grafana-data/datasources:/etc/grafana/provisioning/datasources
       - ./data/grafana-data/dashboards-provisioning:/etc/grafana/provisioning/dashboards
@@ -83,11 +80,7 @@ services:
       - prometheus
       - tempo
       - loki
-      - volume_exporter
-    logging:
-      driver: loki
-      options:
-        loki-url: http://localhost:3100/loki/api/v1/push
+
   nestjs-example:
     build: .
     ports:
@@ -97,9 +90,5 @@ services:
       - ./data/logs:/app/logs
     environment:
       OTEL_SERVICE_NAME: nestjs-full-example
-      OTEL_EXPORTER_JAEGER_ENDPOINT: http://tempo:14268/api/traces
-      LOG_FILE_NAME: /app/logs/nestjs-example.log
-    logging:
-      driver: loki
-      options:
-        loki-url: http://localhost:3100/loki/api/v1/push
+    depends_on:
+      - otel-collector

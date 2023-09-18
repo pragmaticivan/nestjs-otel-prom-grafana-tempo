@@ -1,6 +1,6 @@
 import { LoggerModule as PinoLoggerModule } from 'nestjs-pino';
 import { logger } from './logger';
-import { Module, RequestMethod } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [
@@ -8,7 +8,7 @@ import { Module, RequestMethod } from '@nestjs/common';
       pinoHttp: {
         logger: logger,
       },
-      exclude: [{ method: RequestMethod.ALL, path: 'health' }],
+      // exclude: [{ method: RequestMethod.ALL, path: 'health' }],
     }),
   ],
   controllers: [],
