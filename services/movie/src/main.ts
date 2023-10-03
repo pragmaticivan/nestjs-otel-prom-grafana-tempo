@@ -15,7 +15,7 @@ async function bootstrap() {
   app.enableCors({ origin: '*' });
 
   const options = new DocumentBuilder()
-    .setTitle('Nestjs prom grafana tempo')
+    .setTitle('nestjs-otel - movie service')
     .setVersion('1.0')
     .build();
 

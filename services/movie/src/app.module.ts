@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
 import { OpenTelemetryModule } from 'nestjs-otel';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { LoggerModule } from './logger/logger.module';
-import { TeamModule } from './team/team.module';
+import { MovieModule } from './movie/movie.module';
 
 const OpenTelemetryModuleConfig = OpenTelemetryModule.forRoot({
   metrics: {
@@ -15,8 +13,8 @@ const OpenTelemetryModuleConfig = OpenTelemetryModule.forRoot({
 });
 
 @Module({
-  imports: [OpenTelemetryModuleConfig, LoggerModule, TeamModule],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [OpenTelemetryModuleConfig, LoggerModule, MovieModule],
+  controllers: [],
+  providers: [],
 })
 export class AppModule {}

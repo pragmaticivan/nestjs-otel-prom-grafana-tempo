@@ -81,14 +81,26 @@ services:
       - tempo
       - loki
 
-  nestjs-example:
-    build: .
+  actor:
+    build: ./services/actor
     ports:
       - 5555:5555
       - 8081:8081
     volumes:
       - ./data/logs:/app/logs
     environment:
-      OTEL_SERVICE_NAME: nestjs-full-example
+      OTEL_SERVICE_NAME: actor
+    depends_on:
+      - otel-collector
+
+  movie:
+    build: ./services/movie
+    ports:
+      - 5556:5555
+      - 8082:8081
+    volumes:
+      - ./data/logs:/app/logs
+    environment:
+      OTEL_SERVICE_NAME: movie
     depends_on:
       - otel-collector

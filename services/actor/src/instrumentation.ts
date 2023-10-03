@@ -6,6 +6,13 @@ import { NodeSDK } from '@opentelemetry/sdk-node';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import * as process from 'process';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import {
+  CompositePropagator,
+  W3CTraceContextPropagator,
+  W3CBaggagePropagator,
+} from '@opentelemetry/core';
+import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
 const metricReader = new PrometheusExporter({
   port: 8081,
@@ -21,7 +28,17 @@ const otelSDK = new NodeSDK({
   metricReader,
   spanProcessor: spanProcessor,
   contextManager: new AsyncLocalStorageContextManager(),
-  instrumentations: [new ExpressInstrumentation(), new NestInstrumentation()],
+  instrumentations: [getNodeAutoInstrumentations()],
+  textMapPropagator: new CompositePropagator({
+    propagators: [
+      new W3CTraceContextPropagator(),
+      new W3CBaggagePropagator(),
+      new B3Propagator(),
+      new B3Propagator({
+        injectEncoding: B3InjectEncoding.MULTI_HEADER,
+      }),
+    ]
+  })
 });
 
 export default otelSDK;
