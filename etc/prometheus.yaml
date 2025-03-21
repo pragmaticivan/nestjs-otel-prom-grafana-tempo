@@ -5,11 +5,11 @@ global:
 scrape_configs:
   - job_name: 'prometheus'
     static_configs:
-    - targets: ['localhost:9090']
+    - targets: ['prometheus:9090']
 
   - job_name: 'tempo'
     static_configs:
-    - targets: ['tempo:3100']
+    - targets: ['tempo:3200']
 
   - job_name: 'loki'
     static_configs:
@@ -23,9 +23,4 @@ scrape_configs:
   - job_name: 'movie'
     metrics_path: /metrics
     static_configs:
-    - targets: ['movie:8081']
-
-  - job_name: 'volume_exporter'
-    metrics_path: /metrics
-    static_configs:
-    - targets: ['volume_exporter:9888']
+    - targets: ['movie:8082']

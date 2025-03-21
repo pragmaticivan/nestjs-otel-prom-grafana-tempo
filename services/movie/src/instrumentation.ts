@@ -15,7 +15,7 @@ import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 
 const metricReader = new PrometheusExporter({
-  port: 8081,
+  port: 8082,
 });
 
 const traceExporter = new OTLPTraceExporter({

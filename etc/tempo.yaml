@@ -1,5 +1,5 @@
 server:
-  http_listen_port: 3200
+  http_listen_port: 3200  # Tempo API for queries
 
 query_frontend:
   search:
@@ -9,26 +9,31 @@ query_frontend:
     duration_slo: 5s
 
 distributor:
-  receivers:                           # this configuration will listen on all ports and protocols that tempo is capable of.
-    jaeger:                            # the receives all come from the OpenTelemetry collector.  more configuration information can
-      protocols:                       # be found there: https://github.com/open-telemetry/opentelemetry-collector/tree/main/receiver
-        thrift_http:                   #
-        grpc:                          # for a production deployment you should only enable the receivers you need!
+  receivers:  # This configuration enables all supported tracing protocols
+    jaeger:   # Jaeger receiver configuration
+      protocols:
+        thrift_http:
+          endpoint: 0.0.0.0:14268
+        grpc:
+          endpoint: 0.0.0.0:14250
         thrift_binary:
         thrift_compact:
     zipkin:
+      endpoint: 0.0.0.0:9411  # Explicitly set Zipkin port
     otlp:
       protocols:
         http:
+          endpoint: 0.0.0.0:4318  # OpenTelemetry HTTP receiver
         grpc:
-    opencensus:
+          endpoint: 0.0.0.0:4317  # OpenTelemetry gRPC receiver
+    opencensus: {}
 
 ingester:
-  max_block_duration: 5m               # cut the headblock when this much time passes. this is being set for demo purposes and should probably be left alone normally
+  max_block_duration: 5m  # Cut the head block after 5 minutes (demo setting)
 
 compactor:
   compaction:
-    block_retention: 1h                # overall Tempo trace retention. set for demo purposes
+    block_retention: 1h  # Tempo trace retention period (demo setting)
 
 metrics_generator:
   registry:
@@ -43,8 +48,8 @@ metrics_generator:
 
 storage:
   trace:
-    backend: local                     # backend configuration to use
+    backend: local  # Use local storage for traces
     wal:
-      path: /tmp/tempo/wal             # where to store the the wal locally
+      path: /tmp/tempo/wal
     local:
-      path: /tmp/tempo/blocks
+      path: /tmp/tempo/blocks  # Store traces in local blocks

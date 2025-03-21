@@ -1,0 +1,69 @@
+Directory structure:
+└── pragmaticivan-nestjs-otel-prom-grafana-tempo/
+    ├── README.md
+    ├── docker-compose.yml
+    ├── data/
+    │   └── grafana-data/
+    │       ├── dashboards/
+    │       │   ├── actor-service.json
+    │       │   └── movie-service.json
+    │       ├── dashboards-provisioning/
+    │       │   └── dashboards.yaml
+    │       └── datasources/
+    │           └── datasource.yml
+    ├── etc/
+    │   ├── loki.yaml
+    │   ├── otel-collector.yaml
+    │   ├── prometheus.yaml
+    │   ├── promtail-config.yaml
+    │   └── tempo.yaml
+    └── services/
+        ├── actor/
+        │   ├── Dockerfile
+        │   ├── nest-cli.json
+        │   ├── package-lock.json
+        │   ├── package.json
+        │   ├── tsconfig.build.json
+        │   ├── tsconfig.json
+        │   ├── .dockerignore
+        │   ├── .prettierrc
+        │   ├── src/
+        │   │   ├── app.module.ts
+        │   │   ├── instrumentation.ts
+        │   │   ├── main.ts
+        │   │   ├── actor/
+        │   │   │   ├── actor.controller.ts
+        │   │   │   ├── actor.entity.ts
+        │   │   │   ├── actor.module.ts
+        │   │   │   └── actor.service.ts
+        │   │   └── logger/
+        │   │       ├── logger.module.ts
+        │   │       └── logger.ts
+        │   └── test/
+        │       ├── app.e2e-spec.ts
+        │       └── jest-e2e.json
+        └── movie/
+            ├── Dockerfile
+            ├── nest-cli.json
+            ├── package-lock.json
+            ├── package.json
+            ├── tsconfig.build.json
+            ├── tsconfig.json
+            ├── .dockerignore
+            ├── .prettierrc
+            ├── src/
+            │   ├── app.module.ts
+            │   ├── instrumentation.ts
+            │   ├── main.ts
+            │   ├── logger/
+            │   │   ├── logger.module.ts
+            │   │   └── logger.ts
+            │   └── movie/
+            │       ├── actor.entity.ts
+            │       ├── movie.controller.ts
+            │       ├── movie.entity.ts
+            │       ├── movie.module.ts
+            │       └── movie.service.ts
+            └── test/
+                ├── app.e2e-spec.ts
+                └── jest-e2e.json

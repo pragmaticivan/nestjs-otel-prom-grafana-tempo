@@ -1,4 +1,17 @@
 services:
+
+  # Tempo runs as user 10001, and docker compose creates the volume as root.
+  # As such, we need to chown the volume in order for Tempo to start correctly.
+  init:
+    image: grafana/loki:2.9.12
+    user: root
+    entrypoint:
+      - "chown"
+      - "10001:10001"
+      - "/tmp/loki"
+    volumes:
+      - ./data/loki-data:/tmp/loki
+
   otel-collector:
     image: otel/opentelemetry-collector:0.120.0
     command: [ "--config=/etc/otel-collector.yaml" ]
@@ -9,8 +22,6 @@ services:
       - "8888:8888"   # Prometheus metrics exposed by the collector
       - "8889:8889"   # Prometheus exporter metrics
       - "13133:13133" # health_check extension
-      - "4317:4317"   # OTLP gRPC receiver
-      - "4318:4318"   # OTLP HTTP receiver
       - "55679:55679" # zpages extension
     depends_on:
       - tempo
@@ -21,13 +32,16 @@ services:
     command: [ "-config.file=/etc/tempo.yaml" ]
     volumes:
       - ./etc/tempo.yaml:/etc/tempo.yaml
-      - ./data/tempo-data:/tmp/tempo
+      - ./data/tempo-data:/var/tempo
     ports:
-      - "14268" # jaeger ingest
-      - "3200"  # tempo
-      - "4317"  # otlp grpc
-      - "4318"  # otlp http
-      - "9411"  # zipkin
+      - "3200:3200"   # Tempo Query API (HTTP)
+      - "4317:4317"   # OpenTelemetry gRPC (OTLP)
+      - "4318:4318"   # OpenTelemetry HTTP (OTLP)
+      - "14268:14268" # Jaeger endpoint (for traces)
+      - "9411:9411"   # Zipkin endpoint (for traces)
+    environment:
+      - JAEGER_AGENT_HOST=tempo
+      - JAEGER_ENDPOINT=http://tempo:14268/api/traces # Send traces to Tempo
 
   loki:
     image: grafana/loki:2.9.12
@@ -42,6 +56,8 @@ services:
     volumes:
       - ./etc/loki.yaml:/etc/loki/loki.yaml
       - ./data/loki-data:/tmp/loki
+    depends_on:
+      - init
 
   promtail:
     image: grafana/promtail:2.9.12
@@ -49,6 +65,8 @@ services:
       - ./etc/promtail-config.yaml:/etc/promtail/config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
     command: -config.file=/etc/promtail/config.yaml
+    ports:
+      - "9080:9080"
     depends_on:
       - loki
 
@@ -83,23 +101,26 @@ services:
   actor:
     build: ./services/actor
     ports:
-      - 5555:5555
       - 8081:8081
+      - 5556:5556
+    
     volumes:
       - ./data/logs:/app/logs
     environment:
       OTEL_SERVICE_NAME: actor
+      OTEL_METRICS_PORT: 8081
     depends_on:
       - otel-collector
 
   movie:
     build: ./services/movie
     ports:
-      - 5556:5555
-      - 8082:8081
+      - 8082:8082
+      - 5555:5555
     volumes:
       - ./data/logs:/app/logs
     environment:
       OTEL_SERVICE_NAME: movie
+      OTEL_METRICS_PORT: 8082
     depends_on:
       - otel-collector

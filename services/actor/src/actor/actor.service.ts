@@ -17,7 +17,7 @@ export class ActorService {
   @OtelMethodCounter()
   async findOne(id: number): Promise<Actor> {
     const currentSpan = this.traceService.getSpan();
-    currentSpan.addEvent('some event');
+    currentSpan.addEvent('actor:findOne');
     currentSpan.end();
     return { ...actor, ...{ id } };
   }
