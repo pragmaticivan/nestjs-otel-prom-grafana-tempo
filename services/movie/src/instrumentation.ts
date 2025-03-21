@@ -1,6 +1,6 @@
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { ExpressInstrumentation } from '@opentelemetry/instrumentation-express';
 import { NestInstrumentation } from '@opentelemetry/instrumentation-nestjs-core';
+import { HttpInstrumentation } from '@opentelemetry/instrumentation-http';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
@@ -13,6 +13,12 @@ import {
 } from '@opentelemetry/core';
 import { B3InjectEncoding, B3Propagator } from '@opentelemetry/propagator-b3';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import {
+  ConsoleSpanExporter,
+  SimpleSpanProcessor,
+  WebTracerProvider,
+} from '@opentelemetry/sdk-trace-web';
+import { ZoneContextManager } from '@opentelemetry/context-zone';
 
 const metricReader = new PrometheusExporter({
   port: 8082,
@@ -24,11 +30,25 @@ const traceExporter = new OTLPTraceExporter({
 
 const spanProcessor = new BatchSpanProcessor(traceExporter);
 
+const provider = new WebTracerProvider({
+  spanProcessors: [new SimpleSpanProcessor(new ConsoleSpanExporter())]
+});
+
+provider.register({
+  // Changing default contextManager to use ZoneContextManager - supports asynchronous operations - optional
+  contextManager: new ZoneContextManager(),
+});
+
+
 const otelSDK = new NodeSDK({
   metricReader,
   spanProcessor: spanProcessor,
   contextManager: new AsyncLocalStorageContextManager(),
-  instrumentations: [getNodeAutoInstrumentations()],
+  instrumentations: [
+    new NestInstrumentation(),
+    new HttpInstrumentation(),
+    getNodeAutoInstrumentations(),
+  ],
   textMapPropagator: new CompositePropagator({
     propagators: [
       new W3CTraceContextPropagator(),
