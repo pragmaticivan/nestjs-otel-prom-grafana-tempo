@@ -53,6 +53,6 @@ export class MovieService {
   }
 
   getActor(): Promise<AxiosResponse<Actor>> {
-    return this.httpService.axiosRef.get('http://actor:5555/actors/1');
+    return this.httpService.axiosRef.get('http://actor:5556/actors/1');
   }
 }

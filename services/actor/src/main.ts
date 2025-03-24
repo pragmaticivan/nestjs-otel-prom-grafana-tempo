@@ -5,7 +5,7 @@ import { Logger } from 'nestjs-pino';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  await otelSDK.start();
+  otelSDK.start();
   console.log('Started OTEL SDK');
 
   const app = await NestFactory.create(AppModule);
@@ -22,6 +22,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(5555);
+  await app.listen(5556);
 }
 bootstrap();
