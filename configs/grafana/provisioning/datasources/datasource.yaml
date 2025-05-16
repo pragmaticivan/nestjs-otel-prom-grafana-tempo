@@ -1,0 +1,56 @@
+apiVersion: 1
+
+datasources:
+  - name: Loki
+    type: loki
+    access: proxy
+    uid: loki
+    url: http://loki:3100
+    jsonData:
+      derivedFields:
+        - datasourceUid: tempo
+          matcherRegex: '"traceId":"([A-Za-z0-9]+)"'
+          name: TraceID
+          url: $${__value.raw}
+
+  - name: Tempo
+    type: tempo
+    access: proxy
+    orgId: 1
+    url: http://tempo:3200
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: true
+    apiVersion: 1
+    uid: tempo
+    jsonData:
+      nodeGraph:
+        enabled: true
+      serviceMap:
+        datasourceUid: 'Mimir'
+      tracesToLogs:
+        datasourceUid: loki
+        filterByTraceID: false
+        spanEndTimeShift: "500ms"
+        spanStartTimeShift: "-500ms"
+
+  - name: Mimir
+    type: prometheus
+    access: proxy
+    uid: mimir
+    url: http://mimir:9009/prometheus
+    jsonData:
+      exemplarTraceIdDestinations:
+        - datasourceUid: tempo
+          name: traceID
+      httpMethod: POST
+      timeInterval: "2s"
+
+  - name: Pyroscope
+    type: phlare
+    access: proxy
+    uid: pyroscope
+    url: http://pyroscope:4040
+    jsonData:
+      backendType: pyroscope

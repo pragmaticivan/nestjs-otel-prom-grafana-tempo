@@ -2,18 +2,15 @@ import { Module } from '@nestjs/common';
 import { OpenTelemetryModule } from 'nestjs-otel';
 import { LoggerModule } from './logger/logger.module';
 import { MovieModule } from './movie/movie.module';
+import { OtelConfigService } from './config/opentelemetry.factory';
+import { ConfigModule } from './config/config.module';
 
-const OpenTelemetryModuleConfig = OpenTelemetryModule.forRoot({
-  metrics: {
-    hostMetrics: true,
-    apiMetrics: {
-      enable: true,
-    },
-  },
+const OpenTelemetryModuleConfig = OpenTelemetryModule.forRootAsync({
+  useClass: OtelConfigService,
 });
 
 @Module({
-  imports: [OpenTelemetryModuleConfig, LoggerModule, MovieModule],
+  imports: [ConfigModule, OpenTelemetryModuleConfig, LoggerModule, MovieModule],
   controllers: [],
   providers: [],
 })

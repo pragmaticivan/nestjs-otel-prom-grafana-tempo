@@ -56,7 +56,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -140,7 +140,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -159,7 +159,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -243,7 +243,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "expr": "histogram_quantile(0.50, sum(rate(http_server_duration_bucket{job=\"movie\"}[1m])) by (le,method,path)) * 1000",
@@ -261,7 +261,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -341,7 +341,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -360,7 +360,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -440,7 +440,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -459,7 +459,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -545,7 +545,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "expr": "sum(rate(http_server_duration_count{job=\"movie\"}[1m])) by (status)",
@@ -563,7 +563,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -648,7 +648,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -667,7 +667,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "description": "",
       "fieldConfig": {
@@ -750,7 +750,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -769,7 +769,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "PBFA97CFB590B2093"
+        "uid": "mimir"
       },
       "fieldConfig": {
         "defaults": {
@@ -850,7 +850,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "exemplar": true,
@@ -865,7 +865,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "PBFA97CFB590B2093"
+            "uid": "mimir"
           },
           "editorMode": "code",
           "expr": "sum(rate(http_server_duration_count{status=\"500\", job=\"movie\"}[1m])) by (job)",

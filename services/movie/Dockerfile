@@ -1,5 +1,5 @@
-FROM node:18.17-alpine
-EXPOSE 5555
+FROM node:22-alpine
+EXPOSE 5556
 
 RUN mkdir /app
 

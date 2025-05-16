@@ -34,6 +34,4 @@ lerna-debug.log*
 !.vscode/extensions.json
 
 # App
-/data/tempo-data/
-/data/loki-data/
-/data/logs/
+configs/grafana/data

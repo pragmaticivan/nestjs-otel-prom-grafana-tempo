@@ -1,9 +1,65 @@
 services:
-  otel-collector:
-    image: otel/opentelemetry-collector:0.120.0
+  grafana:
+    image: grafana/grafana:12.0.0
+    volumes:
+      - ./configs/grafana/grafana.ini:/etc/grafana/grafana.ini
+      - ./configs/grafana/dashboards:/var/lib/grafana/dashboards"
+      - ./configs/grafana/provisioning:/etc/grafana/provisioning
+    environment:
+      OTEL_RESOURCE_ATTRIBUTES: "service.name=grafana"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mimir
+      - tempo
+      - loki
+      - opentelemetry-collector
+      - pyroscope
+
+  tempo:
+    image: grafana/tempo:2.7.2
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    ports:
+      - "3200:3200"
+    volumes:
+      - "./configs/tempo/tempo.yaml:/etc/tempo.yaml"
+
+  loki:
+    image: grafana/loki:3.4.3
+    command: ["--pattern-ingester.enabled=true", "-config.file=/etc/loki/loki.yaml"]
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./configs/loki/loki.yaml:/etc/loki/loki.yaml
+
+  promtail:
+    image: grafana/promtail:2.9.12
+    volumes:
+      - ./configs/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: -config.file=/etc/promtail/config.yaml
+    depends_on:
+      - loki
+
+  mimir:
+    image: grafana/mimir:2.16.0
+    command: ["-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml"]
+    ports:
+      - "9009:9009"
+    volumes:
+      - "./configs/mimir/mimir.yaml:/etc/mimir.yaml"
+
+  pyroscope:
+    image: grafana/pyroscope:1.13.1
+    ports:
+      - "4040:4040"
+    command: ["server"]
+
+  opentelemetry-collector:
+    image: otel/opentelemetry-collector-contrib:0.126.0
     command: [ "--config=/etc/otel-collector.yaml" ]
     volumes:
-      - ./etc/otel-collector.yaml:/etc/otel-collector.yaml
+      - ./configs/opentelemetry-collector/otel-collector.yaml:/etc/otel-collector.yaml
     ports:
       - "1888:1888"   # pprof extension
       - "8888:8888"   # Prometheus metrics exposed by the collector
@@ -14,92 +70,26 @@ services:
       - "55679:55679" # zpages extension
     depends_on:
       - tempo
-      - prometheus
-
-  tempo:
-    image: grafana/tempo:2.7.1
-    command: [ "-config.file=/etc/tempo.yaml" ]
-    volumes:
-      - ./etc/tempo.yaml:/etc/tempo.yaml
-      - ./data/tempo-data:/tmp/tempo
-    ports:
-      - "14268" # jaeger ingest
-      - "3200"  # tempo
-      - "4317"  # otlp grpc
-      - "4318"  # otlp http
-      - "9411"  # zipkin
-
-  loki:
-    image: grafana/loki:2.9.12
-    command: -config.file=/etc/loki/loki.yaml
-    ports:
-      - "3100:3100" # loki needs to be exposed so it receives logs
-    environment:
-      - JAEGER_AGENT_HOST=tempo
-      - JAEGER_ENDPOINT=http://tempo:14268/api/traces # send traces to Tempo
-      - JAEGER_SAMPLER_TYPE=const
-      - JAEGER_SAMPLER_PARAM=1
-    volumes:
-      - ./etc/loki.yaml:/etc/loki/loki.yaml
-      - ./data/loki-data:/tmp/loki
-
-  promtail:
-    image: grafana/promtail:2.9.12
-    volumes:
-      - ./etc/promtail-config.yaml:/etc/promtail/config.yaml:ro
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: -config.file=/etc/promtail/config.yaml
-    depends_on:
-      - loki
-
-  prometheus:
-    image: prom/prometheus:v3.2.1
-    volumes:
-      - ./etc/prometheus.yaml:/etc/prometheus.yaml
-    command:
-      - --config.file=/etc/prometheus.yaml
-      - --web.enable-remote-write-receiver
-      - --enable-feature=exemplar-storage
-    ports:
-      - "9090:9090"
-
-  grafana:
-    image: grafana/grafana:11.5.2
-    volumes:
-      - ./data/grafana-data/datasources:/etc/grafana/provisioning/datasources
-      - ./data/grafana-data/dashboards-provisioning:/etc/grafana/provisioning/dashboards
-      - ./data/grafana-data/dashboards:/var/lib/grafana/dashboards
-    environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
-    ports:
-      - "3000:3000"
-    depends_on:
-      - prometheus
-      - tempo
-      - loki
+      - mimir
 
   actor:
     build: ./services/actor
     ports:
       - 5555:5555
-      - 8081:8081
-    volumes:
-      - ./data/logs:/app/logs
     environment:
       OTEL_SERVICE_NAME: actor
+      OTEL_SEMCONV_STABILITY_OPT_IN: http
+      # OTEL_LOG_LEVEL: debug
     depends_on:
-      - otel-collector
+      - opentelemetry-collector
 
   movie:
     build: ./services/movie
     ports:
-      - 5556:5555
-      - 8082:8081
-    volumes:
-      - ./data/logs:/app/logs
+      - 5556:5556
     environment:
       OTEL_SERVICE_NAME: movie
+      OTEL_SEMCONV_STABILITY_OPT_IN: http
+      # OTEL_LOG_LEVEL: debug
     depends_on:
-      - otel-collector
+      - opentelemetry-collector

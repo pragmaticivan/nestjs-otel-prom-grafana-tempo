@@ -1,0 +1,11 @@
+apiVersion: 1
+
+providers:
+  - name: 'file-provider'
+    orgId: 1
+    folder: 'Provisioned dashboards'
+    type: file
+    updateIntervalSeconds: 60
+    allowUiUpdates: true
+    options:
+      path: /var/lib/grafana/dashboards

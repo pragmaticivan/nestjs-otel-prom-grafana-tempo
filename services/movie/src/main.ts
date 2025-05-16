@@ -1,14 +1,21 @@
 import otelSDK from './instrumentation';
 import { NestFactory } from '@nestjs/core';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 import { Logger } from 'nestjs-pino';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
-  await otelSDK.start();
+  otelSDK.start();
   console.log('Started OTEL SDK');
 
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestFastifyApplication>(
+    AppModule,
+    new FastifyAdapter()
+  );
   app.useLogger(app.get(Logger));
 
   app.enableShutdownHooks();
@@ -22,6 +29,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('docs', app, document);
 
-  await app.listen(5555);
+  await app.listen(5556, '0.0.0.0');
 }
 bootstrap();
