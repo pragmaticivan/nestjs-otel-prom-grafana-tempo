@@ -1,11 +1,16 @@
 apiVersion: 1
 
 providers:
-  - name: 'file-provider'
+  - name: 'docker-compose'
     orgId: 1
-    folder: 'Provisioned dashboards'
+    folder: ''
+    folderUid: ''
     type: file
+    disableDeletion: true
     updateIntervalSeconds: 60
-    allowUiUpdates: true
+    allowUiUpdates: false
     options:
+      # <string, required> path to dashboard files on disk. Required when using the 'file' type
       path: /var/lib/grafana/dashboards
+      # <bool> use folder names from filesystem to create folders in Grafana
+      foldersFromFilesStructure: true

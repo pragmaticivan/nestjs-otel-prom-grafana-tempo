@@ -3,8 +3,9 @@ services:
     image: grafana/grafana:12.0.0
     volumes:
       - ./configs/grafana/grafana.ini:/etc/grafana/grafana.ini
-      - ./configs/grafana/dashboards:/var/lib/grafana/dashboards"
-      - ./configs/grafana/provisioning:/etc/grafana/provisioning
+      - ./configs/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - ./configs/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      - ./configs/grafana/dashboards:/var/lib/grafana/dashboards
     environment:
       OTEL_RESOURCE_ATTRIBUTES: "service.name=grafana"
     ports:
