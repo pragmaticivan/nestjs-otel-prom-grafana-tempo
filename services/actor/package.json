@@ -35,7 +35,7 @@
     "@opentelemetry/sdk-node": "^0.201.0",
     "@types/graphql": "^14.5.0",
     "aws-sdk": "^2.1692.0",
-    "nestjs-otel": "canary",
+    "nestjs-otel": "^7.0.0",
     "nestjs-pino": "^4.4.0",
     "opentelemetry-node-metrics": "^3.0.0",
     "pino": "^9.6.0",
