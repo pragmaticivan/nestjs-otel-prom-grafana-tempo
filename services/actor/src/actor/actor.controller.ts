@@ -13,6 +13,11 @@ export class ActorController {
     return this.actorService.findAll();
   }
 
+  @Get('error')
+  forceError(): Promise<Actor[]> {
+    return this.actorService.triggerError();
+  }
+
   @Get(':id')
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: Actor })

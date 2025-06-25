@@ -14,9 +14,6 @@ export class OtelConfigService implements OpenTelemetryOptionsFactory {
     return {
       metrics: {
         hostMetrics: hostMetrics.enabled ?? true,
-        apiMetrics: {
-          enable: apiMetrics.enabled ?? true,
-        },
       },
     };
   }

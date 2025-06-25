@@ -55,4 +55,8 @@ export class MovieService {
   getActor(): Promise<AxiosResponse<Actor>> {
     return this.httpService.axiosRef.get('http://actor:5555/actors/1');
   }
+
+  async triggerError(): Promise<Movie[]> {
+    throw new Error('force-error');
+  }
 }

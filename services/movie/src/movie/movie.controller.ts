@@ -20,6 +20,11 @@ export class MovieController {
     return this.movieService.findAll();
   }
 
+  @Get('error')
+  forceError(): Promise<Movie[]> {
+    return this.movieService.triggerError();
+  }
+
   @Get(':id')
   @ApiParam({ name: 'id' })
   @ApiOkResponse({ type: Movie })

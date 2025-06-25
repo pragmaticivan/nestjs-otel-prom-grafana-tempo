@@ -27,4 +27,8 @@ export class ActorService {
   async findAll(): Promise<Actor[]> {
     return [actor];
   }
+
+  async triggerError(): Promise<Actor[]> {
+    throw new Error('force-error');
+  }
 }

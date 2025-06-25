@@ -6,9 +6,6 @@ import { ActorModule } from './actor/actor.module';
 const OpenTelemetryModuleConfig = OpenTelemetryModule.forRoot({
   metrics: {
     hostMetrics: true,
-    apiMetrics: {
-      enable: true,
-    },
   },
 });
 

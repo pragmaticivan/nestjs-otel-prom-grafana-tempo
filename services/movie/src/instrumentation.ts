@@ -11,6 +11,7 @@ import {
 } from '@opentelemetry/core';
 import { B3Propagator } from '@opentelemetry/propagator-b3';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { FastifyOtelInstrumentation } from '@fastify/otel';
 
 const metricReader = new PrometheusExporter({
   port: 8081,
@@ -26,7 +27,9 @@ const otelSDK = new NodeSDK({
   metricReader,
   spanProcessor: spanProcessor,
   contextManager: new AsyncLocalStorageContextManager(),
-  instrumentations: [getNodeAutoInstrumentations()],
+  instrumentations: [getNodeAutoInstrumentations(), new FastifyOtelInstrumentation({
+    registerOnInitialization: true,
+  })],
   textMapPropagator: new CompositePropagator({
     propagators: [
       new W3CTraceContextPropagator(),
