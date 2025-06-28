@@ -1,6 +1,6 @@
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
-import { NodeSDK } from '@opentelemetry/sdk-node';
+import { logs, NodeSDK } from '@opentelemetry/sdk-node';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import * as process from 'process';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
@@ -27,16 +27,20 @@ const otelSDK = new NodeSDK({
   metricReader,
   spanProcessor: spanProcessor,
   contextManager: new AsyncLocalStorageContextManager(),
-  instrumentations: [getNodeAutoInstrumentations(), new FastifyOtelInstrumentation({
-    registerOnInitialization: true,
-  })],
+  logRecordProcessor: new logs.SimpleLogRecordProcessor(new logs.ConsoleLogRecordExporter()),
+  instrumentations: [
+    getNodeAutoInstrumentations(),
+    new FastifyOtelInstrumentation({
+      registerOnInitialization: true,
+    }),
+  ],
   textMapPropagator: new CompositePropagator({
     propagators: [
       new W3CTraceContextPropagator(),
       new W3CBaggagePropagator(),
       new B3Propagator(),
     ]
-  })
+  }),
 });
 
 export default otelSDK;
