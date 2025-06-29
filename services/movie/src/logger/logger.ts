@@ -6,9 +6,6 @@ export const loggerOptions: LoggerOptions = {
     level(label) {
       return { level: label };
     },
-    log(object) {
-      return { ...object, 'service.name': process.env.OTEL_SERVICE_NAME || 'unknown-service' };
-    },
   },
 };
 

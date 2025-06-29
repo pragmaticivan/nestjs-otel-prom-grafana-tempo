@@ -1,6 +1,6 @@
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { PrometheusExporter } from '@opentelemetry/exporter-prometheus';
-import { logs, NodeSDK } from '@opentelemetry/sdk-node';
+import { NodeSDK } from '@opentelemetry/sdk-node';
 import { AsyncLocalStorageContextManager } from '@opentelemetry/context-async-hooks';
 import * as process from 'process';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
@@ -12,6 +12,7 @@ import {
 import { B3Propagator } from '@opentelemetry/propagator-b3';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { FastifyOtelInstrumentation } from '@fastify/otel';
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 
 const metricReader = new PrometheusExporter({
   port: 8081,
@@ -27,9 +28,14 @@ const otelSDK = new NodeSDK({
   metricReader,
   spanProcessor: spanProcessor,
   contextManager: new AsyncLocalStorageContextManager(),
-  logRecordProcessor: new logs.SimpleLogRecordProcessor(new logs.ConsoleLogRecordExporter()),
   instrumentations: [
-    getNodeAutoInstrumentations(),
+    getNodeAutoInstrumentations({
+      "@opentelemetry/instrumentation-pino":{
+        logHook: (_span, logRecord) => {
+          logRecord[ATTR_SERVICE_NAME] = process.env.OTEL_SERVICE_NAME || 'unknown-service';
+        }
+      }
+    }),
     new FastifyOtelInstrumentation({
       registerOnInitialization: true,
     }),

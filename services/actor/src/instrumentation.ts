@@ -11,6 +11,7 @@ import {
 } from '@opentelemetry/core';
 import { B3Propagator } from '@opentelemetry/propagator-b3';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+import { ATTR_SERVICE_NAME } from '@opentelemetry/semantic-conventions';
 
 const metricReader = new PrometheusExporter({
   port: 8081,
@@ -26,7 +27,15 @@ const otelSDK = new NodeSDK({
   metricReader,
   spanProcessor: spanProcessor,
   contextManager: new AsyncLocalStorageContextManager(),
-  instrumentations: [getNodeAutoInstrumentations()],
+  instrumentations: [
+    getNodeAutoInstrumentations({
+      "@opentelemetry/instrumentation-pino":{
+        logHook: (_span, logRecord) => {
+          logRecord[ATTR_SERVICE_NAME] = process.env.OTEL_SERVICE_NAME || 'unknown-service';
+        }
+      }
+    }),
+  ],
   textMapPropagator: new CompositePropagator({
     propagators: [
       new W3CTraceContextPropagator(),
