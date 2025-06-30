@@ -8,8 +8,4 @@ RUN cd /app && npm install
 
 WORKDIR /app
 
-COPY . /app
-
-RUN npm run build
-
-CMD [ "npm", "run" ,"start" ]
+CMD [ "npm", "run" ,"start:dev" ]
