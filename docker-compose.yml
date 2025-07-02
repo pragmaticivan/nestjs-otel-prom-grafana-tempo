@@ -81,6 +81,9 @@ services:
       OTEL_SERVICE_NAME: actor
       OTEL_SEMCONV_STABILITY_OPT_IN: http
       # OTEL_LOG_LEVEL: debug
+    volumes:
+      - ./services/actor:/app
+      - /app/node_modules
     depends_on:
       - opentelemetry-collector
 
@@ -92,5 +95,8 @@ services:
       OTEL_SERVICE_NAME: movie
       OTEL_SEMCONV_STABILITY_OPT_IN: http
       # OTEL_LOG_LEVEL: debug
+    volumes:
+      - ./services/movie:/app
+      - /app/node_modules
     depends_on:
       - opentelemetry-collector

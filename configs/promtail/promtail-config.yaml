@@ -15,6 +15,20 @@ scrape_configs:
     docker_sd_configs:
       - host: unix:///var/run/docker.sock
         refresh_interval: 5s
+
+    pipeline_stages:
+      - docker: {}
+      - json:
+          expressions:
+            # Note: quote "service.name" so the dot isn’t treated as nesting
+            service_name: '"service.name"'
+            trace_id: trace_id
+            span_id: span_id
+      - labels:
+          service_name:
+          trace_id:
+          span_id:
+
     relabel_configs:
       - source_labels: ['__meta_docker_container_name']
         regex: '/(.*)'
