@@ -2,7 +2,7 @@ import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOkResponse, ApiParam, ApiTags } from '@nestjs/swagger';
 import { Movie } from './movie.entity';
 import { MovieService } from './movie.service';
-import { OtelCounter } from 'nestjs-otel';
+import { OtelCounter, WideEventField, WideEventService } from 'nestjs-otel';
 import {
   Counter,
 } from '@opentelemetry/api';
@@ -10,7 +10,10 @@ import {
 @Controller('movies')
 @ApiTags('movies')
 export class MovieController {
-  constructor(private readonly movieService: MovieService) {}
+  constructor(
+    private readonly movieService: MovieService,
+    private readonly wideEvent: WideEventService,
+  ) {}
 
   @Get('')
   list(
@@ -23,6 +26,21 @@ export class MovieController {
   @Get('error')
   forceError(): Promise<Movie[]> {
     return this.movieService.triggerError();
+  }
+
+  @Get('wide-event')
+  @WideEventField('movie.demo.result_count', (result: string[]) => result.length)
+  wideEventDemo(): string[] {
+    this.wideEvent.set('movie.demo.user_id', 'u-7');
+    this.wideEvent.setMany({
+      'movie.demo.tenant': 'acme',
+      'movie.demo.plan': 'pro',
+    });
+    this.wideEvent.increment('movie.demo.db_queries');
+    this.wideEvent.increment('movie.demo.db_queries');
+    const stop = this.wideEvent.startTimer('movie.demo.work_ms');
+    stop();
+    return ['faroeste', 'caboclo'];
   }
 
   @Get(':id')

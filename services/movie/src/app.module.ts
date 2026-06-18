@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { OpenTelemetryModule } from 'nestjs-otel';
+import { APP_INTERCEPTOR } from '@nestjs/core';
+import { OpenTelemetryModule, WideEventInterceptor } from 'nestjs-otel';
 import { LoggerModule } from './logger/logger.module';
 import { MovieModule } from './movie/movie.module';
 import { OtelConfigService } from './config/opentelemetry.factory';
@@ -12,6 +13,11 @@ const OpenTelemetryModuleConfig = OpenTelemetryModule.forRootAsync({
 @Module({
   imports: [ConfigModule, OpenTelemetryModuleConfig, LoggerModule, MovieModule],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: WideEventInterceptor,
+    },
+  ],
 })
 export class AppModule {}

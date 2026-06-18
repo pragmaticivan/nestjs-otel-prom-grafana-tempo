@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { OtelMethodCounter, Span, TraceService } from 'nestjs-otel';
+import { OtelMethodCounter, Span, TraceService, WideEventService } from 'nestjs-otel';
 import { Movie } from './movie.entity';
 import { HttpService } from '@nestjs/axios';
 import { AxiosResponse } from 'axios';
@@ -22,15 +22,25 @@ export class MovieService {
   constructor(
     private readonly traceService: TraceService,
     private readonly httpService: HttpService,
+    private readonly wideEvent: WideEventService,
   ) {}
 
-  @Span('findOne section')
+  @Span({onResult: (result: Movie) => {
+      return {attributes:  { customAttrId: result.id }};
+    }
+  })
   @OtelMethodCounter()
   async findOne(id: number): Promise<Movie> {
     const currentSpan = this.traceService.getSpan();
     currentSpan.addEvent('some event');
     currentSpan.end();
+
+    this.wideEvent.set('movie.id', id);
+    const stopTimer = this.wideEvent.startTimer('actor.fetch.duration_ms');
     const resp = await this.getActor();
+    stopTimer();
+
+    this.wideEvent.set('actor.id', resp.data.id);
 
     return {
       ...factoryMovie(),
@@ -39,10 +49,19 @@ export class MovieService {
     };
   }
 
-  @Span('findAll section')
+  @Span('findAll section', {onResult: (result: Movie[]) => {
+      return {attributes:  { customAttrId: result[0]?.id }};
+    }})
   @OtelMethodCounter()
   async findAll(): Promise<Movie[]> {
+    const stopTimer = this.wideEvent.startTimer('actor.fetch.duration_ms');
     const resp = await this.getActor();
+    stopTimer();
+
+    this.wideEvent.setMany({
+      'movie.count': 1,
+      'actor.id': resp.data.id,
+    });
 
     return [
       {

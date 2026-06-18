@@ -131,8 +131,6 @@ connectors:
 
   # The servicegraph connector is used to output service node metrics based on received trace spans.
   servicegraph:
-      # Defines which exporter the processor will write metrics to.
-      metrics_exporter: prometheusremotewrite
       # Defines additional label dimensions of the metrics from trace span attributes present.
       store:                      # Configuration for the in-memory store.
         ttl: 2s                   # Time to wait for an edge to be completed.

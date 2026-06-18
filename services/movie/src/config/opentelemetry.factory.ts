@@ -15,6 +15,12 @@ export class OtelConfigService implements OpenTelemetryOptionsFactory {
       metrics: {
         hostMetrics: hostMetrics.enabled ?? true,
       },
+      wideEvents: {
+        seed: (ctx) => ({
+          'service.name': 'movie',
+          'http.target': ctx.switchToHttp().getRequest().url,
+        }),
+      },
     };
   }
 }

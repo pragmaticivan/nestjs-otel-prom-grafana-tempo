@@ -1,6 +1,6 @@
 services:
   grafana:
-    image: grafana/grafana:12.0.0
+    image: grafana/grafana:13.0.2
     volumes:
       - ./configs/grafana/grafana.ini:/etc/grafana/grafana.ini
       - ./configs/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
@@ -18,7 +18,7 @@ services:
       - pyroscope
 
   tempo:
-    image: grafana/tempo:2.7.2
+    image: grafana/tempo:2.10.7
     command: [ "-config.file=/etc/tempo.yaml" ]
     ports:
       - "3200:3200"
@@ -26,7 +26,7 @@ services:
       - "./configs/tempo/tempo.yaml:/etc/tempo.yaml"
 
   loki:
-    image: grafana/loki:3.4.3
+    image: grafana/loki:3.7.2
     command: ["--pattern-ingester.enabled=true", "-config.file=/etc/loki/loki.yaml"]
     ports:
       - "3100:3100"
@@ -34,7 +34,7 @@ services:
       - ./configs/loki/loki.yaml:/etc/loki/loki.yaml
 
   promtail:
-    image: grafana/promtail:2.9.12
+    image: grafana/promtail:3.6.11
     volumes:
       - ./configs/promtail/promtail-config.yaml:/etc/promtail/config.yaml:ro
       - /var/run/docker.sock:/var/run/docker.sock
@@ -43,7 +43,7 @@ services:
       - loki
 
   mimir:
-    image: grafana/mimir:2.16.0
+    image: grafana/mimir:3.0.7
     command: ["-ingester.native-histograms-ingestion-enabled=true", "-config.file=/etc/mimir.yaml"]
     ports:
       - "9009:9009"
@@ -51,13 +51,13 @@ services:
       - "./configs/mimir/mimir.yaml:/etc/mimir.yaml"
 
   pyroscope:
-    image: grafana/pyroscope:1.13.1
+    image: grafana/pyroscope:2.1.0
     ports:
       - "4040:4040"
     command: ["server"]
 
   opentelemetry-collector:
-    image: otel/opentelemetry-collector-contrib:0.126.0
+    image: otel/opentelemetry-collector-contrib:0.154.0
     command: [ "--config=/etc/otel-collector.yaml" ]
     volumes:
       - ./configs/opentelemetry-collector/otel-collector.yaml:/etc/otel-collector.yaml
@@ -83,7 +83,7 @@ services:
       # OTEL_LOG_LEVEL: debug
     volumes:
       - ./services/actor:/app
-      - /app/node_modules
+      # - /app/node_modules
     depends_on:
       - opentelemetry-collector
 
@@ -97,6 +97,6 @@ services:
       # OTEL_LOG_LEVEL: debug
     volumes:
       - ./services/movie:/app
-      - /app/node_modules
+      # - /app/node_modules
     depends_on:
       - opentelemetry-collector
